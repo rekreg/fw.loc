@@ -34,22 +34,56 @@ class Router {
             $route[$key] = $v;
           }
         }
-        
+        if(!isset($route['action'])) {
+          $route['action'] = "index";
+        }
         self::$route = $route;
-        print_arr(self::$route);
         return true;
       }
     }
     return false; 
   }
   
+  
+  // Перенаправляем URL по корректрому маршруту
+  
+
   public static function dispatch($url) {
     if(self::matchRoute($url)) {
-        echo "OK";
+     $controller = self::upperCamelCase(self::$route['controller']);
+    
+     if(class_exists($controller)) {
+        $cObj = new $controller;
+        $action = self::lowerCamelCase(self::$route['action']."Action");
+        debug($action);
+        if(method_exists($cObj, $action)) {
+          $cObj->$action();
+        } else {
+          echo "Метод <b>$controller::$action</b> не найден";
+        }
+       
+     } else {
+        echo "Контроллер <b>$controller</b> не найден";
+     }
+        
     } else {
         http_response_code(404);
         include "404.html";  
     }
+  }
+  
+  
+  protected static function upperCamelCase($name) {
+    $name = str_replace("-", " ", $name);
+    $name = ucwords($name);
+    $name = str_replace(" ", "", $name);
+
+    return $name;
+  }
+  
+  protected static function lowerCamelCase($name) {
+
+    return lcfirst(self::upperCamelCase($name));
   }
   
   
