@@ -1,5 +1,8 @@
 <?php
 
+namespace vendor\core;
+
+
 class Router {
   
  /* public function __construct() {
